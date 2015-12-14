@@ -1,14 +1,17 @@
-package com.example.jonathanskinner.newsfeed;
+package com.example.jonathanskinner.newsfeed.fragment;
 
 import android.app.Activity;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.jonathanskinner.newsfeed.activity.NewsItemListActivity;
+import com.example.jonathanskinner.newsfeed.R;
+import com.example.jonathanskinner.newsfeed.activity.NewsItemDetailActivity;
 import com.example.jonathanskinner.newsfeed.dummy.DummyContent;
 
 /**
