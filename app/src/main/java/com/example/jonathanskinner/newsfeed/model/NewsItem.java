@@ -4,6 +4,10 @@ package com.example.jonathanskinner.newsfeed.model;
  * Created by jonathanskinner on 12/11/15.
  */
 
+import android.content.ContentValues;
+
+import com.example.jonathanskinner.newsfeed.resolver.NewsFeedContentResolverConstants.NewsItemResolver;
+
 import java.util.Date;
 
 public class NewsItem {
@@ -15,6 +19,18 @@ public class NewsItem {
     private String category;
     private Date publishDate;
     private String description;
+
+    public ContentValues getContentValues() {
+        ContentValues values = new ContentValues();
+        values.put(NewsItemResolver._ID, id);
+        values.put(NewsItemResolver.TITLE, title);
+        values.put(NewsItemResolver.LINK, link);
+        values.put(NewsItemResolver.GUID, guid);
+        values.put(NewsItemResolver.CATEGORY, category);
+        values.put(NewsItemResolver.PUBLISH_DATE, getPublishDate()==null ? null : getPublishDate().getTime());
+        values.put(NewsItemResolver.DESCRIPTION, description);
+        return values;
+    }
 
     public Long getId() {
         return id;

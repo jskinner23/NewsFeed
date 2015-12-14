@@ -22,7 +22,7 @@ public class NewsFeedContentProvider extends ContentProvider {
     //URI codes
     private static final int URI_CODE_NEWS_ITEM = 1;
 
-    private static final String mAuthority = "com.example.jonathanskinner.newsfeed.provider.newsfeedcontentprovider";
+    public static final String AUTHORITY = "com.example.jonathanskinner.newsfeed.provider.newsfeedcontentprovider";
     private DataSourceImpl mDataSource;
 
     public NewsFeedContentProvider() {
@@ -36,7 +36,7 @@ public class NewsFeedContentProvider extends ContentProvider {
     }
 
     private void initUriMatchers() {
-        sUriMatcher.addURI(mAuthority, NewsItemResolver.getPath(), URI_CODE_NEWS_ITEM);
+        sUriMatcher.addURI(AUTHORITY, NewsItemResolver.getPath(), URI_CODE_NEWS_ITEM);
     }
 
     @Nullable
