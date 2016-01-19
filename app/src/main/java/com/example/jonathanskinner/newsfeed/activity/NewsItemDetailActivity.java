@@ -20,7 +20,7 @@ import com.example.jonathanskinner.newsfeed.R;
  * item details are presented side-by-side with a list of items
  * in a {@link NewsItemListActivity}.
  */
-public class NewsItemDetailActivity extends AppCompatActivity {
+public class NewsItemDetailActivity extends AppBroadcastReceiverActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

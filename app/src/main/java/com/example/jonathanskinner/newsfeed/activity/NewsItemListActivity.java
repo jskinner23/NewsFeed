@@ -9,6 +9,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,7 @@ import com.example.jonathanskinner.newsfeed.R;
 import com.example.jonathanskinner.newsfeed.activity.NewsItemDetailActivity;
 import com.example.jonathanskinner.newsfeed.dummy.DummyContent;
 import com.example.jonathanskinner.newsfeed.fragment.NewsItemDetailFragment;
+import com.example.jonathanskinner.newsfeed.networking.service.NewsFetchService;
 
 import java.util.List;
 
@@ -29,7 +31,8 @@ import java.util.List;
  * item details. On tablets, the activity presents the list of items and
  * item details side-by-side using two vertical panes.
  */
-public class NewsItemListActivity extends AppCompatActivity {
+public class NewsItemListActivity extends AppBroadcastReceiverActivity {
+    private static final String LOG_TAG = NewsItemListActivity.class.getName();
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -66,6 +69,14 @@ public class NewsItemListActivity extends AppCompatActivity {
             // activity should be in two-pane mode.
             mTwoPane = true;
         }
+
+        //Fetch news
+        launchNewsFetchService();
+    }
+
+    private void launchNewsFetchService() {
+        Intent newsFetchServiceIntent = new Intent(this, NewsFetchService.class);
+        startService(newsFetchServiceIntent);
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
