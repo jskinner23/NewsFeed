@@ -1,9 +1,11 @@
 package com.example.jonathanskinner.newsfeed.networking.service;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.android.volley.Cache;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -12,6 +14,8 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.example.jonathanskinner.newsfeed.model.NewsItem;
 import com.example.jonathanskinner.newsfeed.networking.volleyintegration.VolleyRequestQueue;
+import com.example.jonathanskinner.newsfeed.service.NewsItemService;
+import com.example.jonathanskinner.newsfeed.service.impl.NewsItemServiceImpl;
 import com.example.jonathanskinner.newsfeed.util.BroadcastUtil;
 import com.example.jonathanskinner.newsfeed.util.NetworkUtil;
 
@@ -31,7 +35,9 @@ import java.util.List;
 public class NewsFetchService extends IntentService {
     private static final String LOG_TAG = NewsFetchService.class.getName();
 
-    private static final String NEWS_FEED_URL = "http://ajax.googleapis.com/ajax/services/feed/load?v=1.0&num=8&q=http://news.google.com/news?output=rss";
+    private static final String NEWS_FEED_URL = "http://ajax.googleapis.com/ajax/services/feed/load?v=1.0&num=*&q=http://news.google.com/news?output=rss";
+
+    private static final Integer MAX_NEWS_ITEMS = 10;
 
     private static final String NEWS_FEED_JSON_RESPONSE_DATA = "responseData";
     private static final String NEWS_FEED_JSON_FEED = "feed";
@@ -45,34 +51,50 @@ public class NewsFetchService extends IntentService {
     private static final String NEWS_FEED_JSON_ENTRY_CONTENT = "content";
     private static final String NEWS_FEED_JSON_ENTRY_CATEGORIES = "categories";
 
+    private NewsItemService mNewsItemService = new NewsItemServiceImpl();
+
+    private Context mContext;
+
     public NewsFetchService() {
         super(NewsFetchService.class.getName());
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Log.d(LOG_TAG, "NewsFetchService handling intent");
+        mContext = getApplicationContext();
+
         //check for network availability
-        if (!NetworkUtil.isNetworkAvailable(getApplicationContext())) {
-            BroadcastUtil.sendNoNetworkAvailableBroadcast(getApplicationContext());
+        if (!NetworkUtil.isNetworkAvailable(mContext)) {
+            BroadcastUtil.sendNoNetworkAvailableBroadcast(mContext);
             stopSelf();
             return;
         }
 
         //fetch news
         fetchNews();
+
+        // check if news item count and if there are more than the desired amount, delete the oldest news items
+        Integer newsItemCount = mNewsItemService.getCount(mContext);
+        Log.d(LOG_TAG, "newsItemCount: " + newsItemCount);
+        if (newsItemCount > MAX_NEWS_ITEMS) {
+            List<NewsItem> allNewsItems = mNewsItemService.getAll(mContext);
+            List<NewsItem> newsItemsToDelete = allNewsItems.subList(10, (allNewsItems.size()-1));
+            mNewsItemService.deleteNewsItems(mContext, newsItemsToDelete);
+            Log.d(LOG_TAG, "newsItemCount after deletion: " + mNewsItemService.getCount(mContext));
+        }
     }
 
     private void fetchNews() {
-        Log.d(LOG_TAG, "fetchNews()");
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, NEWS_FEED_URL, null, new Response.Listener<JSONObject>() {
+        String url = buildNewsFeedUrl();
+        // invalidate Volley cache so that a fresh feed is retrieved
+        invalidateVolleyCache(url);
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 Log.d(LOG_TAG, "response received: " + response.toString());
-                //parse response
-                List<NewsItem> newsItems;
+                //parse response in database
                 try {
-                    newsItems = parseResponse(response);
+                    parseResponseIntoDatabase(response);
                 } catch (Exception e) {
                     Log.e(LOG_TAG, "Error parsing news", e);
                 }
@@ -88,23 +110,32 @@ public class NewsFetchService extends IntentService {
         request.setRetryPolicy(new DefaultRetryPolicy(7000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
         // put request in queue
-        VolleyRequestQueue.getInstance(getApplicationContext()).addToRequestQueue(request);
+        VolleyRequestQueue.getInstance(mContext).addToRequestQueue(request);
     }
 
-    private List<NewsItem> parseResponse(JSONObject jsonResponse) throws JSONException, ParseException {
-        List<NewsItem> newsItems = new ArrayList<NewsItem>();
+    private String buildNewsFeedUrl() {
+        return NEWS_FEED_URL.replace("num=*", "num="+MAX_NEWS_ITEMS);
+    }
 
+    private void parseResponseIntoDatabase(JSONObject jsonResponse) throws JSONException, ParseException {
         JSONArray entries = jsonResponse.getJSONObject(NEWS_FEED_JSON_RESPONSE_DATA)
                 .getJSONObject(NEWS_FEED_JSON_FEED)
                 .getJSONArray(NEWS_FEED_JSON_ENTRIES);
 
         for (int i=0; i < entries.length(); i++) {
             NewsItem newsItem = convertEntryToNewsItem(entries.getJSONObject(i));
-            Log.d(LOG_TAG, newsItem.toString());
-            newsItems.add(newsItem);
+            handleNewsItem(newsItem);
+        }
+    }
+
+    private void handleNewsItem(NewsItem newsItem) {
+        // check if news item already exists in the database
+        if ((mNewsItemService.getByLink(mContext, newsItem.getLink())) != null) {
+            return;
         }
 
-        return newsItems;
+        // insert new news item into database
+        mNewsItemService.insert(mContext, newsItem);
     }
 
     private NewsItem convertEntryToNewsItem(JSONObject entry) throws JSONException, ParseException {
@@ -127,5 +158,10 @@ public class NewsFetchService extends IntentService {
         }
 
         return newsItem;
+    }
+
+    private void invalidateVolleyCache(String url) {
+        Cache volleyCache = VolleyRequestQueue.getInstance(mContext).getRequestQueue().getCache();
+        volleyCache.invalidate(url, true);
     }
 }

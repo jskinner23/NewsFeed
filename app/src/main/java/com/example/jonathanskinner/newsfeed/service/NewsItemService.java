@@ -30,6 +30,15 @@ public interface NewsItemService {
     public NewsItem getById(Context context, Long id);
 
     /**
+     * Gets a NewsItem by its link
+     *
+     * @param context
+     * @param link
+     * @return NewsItem if found; null if not found
+     */
+    public NewsItem getByLink(Context context, String link);
+
+    /**
      * Gets a count of all NewsItems in the database
      * @param context
      *
@@ -63,4 +72,13 @@ public interface NewsItemService {
      * @return the number of rows in the database that were deleted
      */
     public Integer delete(Context context, NewsItem newsItem);
+
+    /**
+     * Deletes all of the News Items in the list
+     *
+     * @param context
+     * @param newsItemsToDelete
+     * @return the number of rows in the database that were deleted
+     */
+    public Integer deleteNewsItems(Context context, List<NewsItem> newsItemsToDelete);
 }

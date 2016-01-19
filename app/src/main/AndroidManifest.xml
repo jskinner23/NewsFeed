@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.jonathanskinner.newsfeed">
+    package="com.example.jonathanskinner.newsfeed"
+    android:versionCode="1"
+    android:versionName="1.0">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -11,13 +13,14 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <!-- Activities -->
         <activity
             android:name=".activity.NewsItemListActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -30,10 +33,19 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activity.NewsItemListActivity" />
         </activity>
+        <activity android:name=".activity.AppBroadcastReceiverActivity"></activity>
 
+        <!-- Providers -->
+        <provider
+            android:name="com.example.jonathanskinner.newsfeed.provider.NewsFeedContentProvider"
+            android:authorities="com.example.jonathanskinner.newsfeed.provider.newsfeedcontentprovider"
+            android:enabled="true"
+            android:exported="false" >
+        </provider>
+
+        <!-- Services -->
         <service android:name=".networking.service.NewsFetchService" />
 
-        <activity android:name=".activity.AppBroadcastReceiverActivity"></activity>
     </application>
 
 </manifest>

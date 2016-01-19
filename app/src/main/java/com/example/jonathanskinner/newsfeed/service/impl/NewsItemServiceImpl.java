@@ -43,8 +43,23 @@ public class NewsItemServiceImpl implements NewsItemService {
     }
 
     @Override
+    public NewsItem getByLink(Context context, String link) {
+        //make query
+        String selection = NewsItemResolver.LINK+" = ?";
+        String[] selectionArgs = { link };
+
+        Cursor cursor = runQuery(context, null, selection, selectionArgs, null);
+
+        // convert cursor to NewsItem
+        return getNewsItemFromCursor(context, cursor);
+    }
+
+    @Override
     public Integer getCount(Context context) {
         Cursor cursor = runQuery(context, null, null, null, null);
+        if (cursor == null) {
+            return 0;
+        }
         Integer count = cursor.getCount();
         cursor.close();
         return count;
@@ -75,6 +90,23 @@ public class NewsItemServiceImpl implements NewsItemService {
         // delete news item
         String where = NewsItemResolver._ID + " = ?";
         String[] selectionArgs = { String.valueOf(newsItem.getId()) };
+
+        return performDelete(context, where, selectionArgs);
+    }
+
+    @Override
+    public Integer deleteNewsItems(Context context, List<NewsItem> newsItemsToDelete) {
+        StringBuilder newsItemIdList = new StringBuilder();
+        for (NewsItem newsItem : newsItemsToDelete) {
+            newsItemIdList.append(newsItem.getId());
+            if (!newsItem.getId().equals(newsItemsToDelete.size()-1)) {
+                newsItemIdList.append(",");
+            }
+        }
+
+        // delete news item
+        String where = NewsItemResolver._ID + " IN (?)";
+        String[] selectionArgs = { newsItemIdList.toString() };
 
         return performDelete(context, where, selectionArgs);
     }
