@@ -74,7 +74,7 @@ public class NewsItemServiceImpl implements NewsItemService {
         // delete news item
         String where = NewsItemResolver._ID + " = ?";
         String[] selectionArgs = { String.valueOf(newsItem.getId()) };
-        
+
         return performDelete(context, where, selectionArgs);
     }
 
