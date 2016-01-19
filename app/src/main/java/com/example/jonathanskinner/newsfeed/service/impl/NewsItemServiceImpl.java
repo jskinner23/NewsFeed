@@ -11,6 +11,7 @@ import com.example.jonathanskinner.newsfeed.service.NewsItemService;
 import com.example.jonathanskinner.newsfeed.util.CursorUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -127,11 +128,13 @@ public class NewsItemServiceImpl implements NewsItemService {
         newsItem.setId(CursorUtil.getLongValueFromCursor(context, NewsItemResolver._ID, cursor));
         newsItem.setTitle(CursorUtil.getStringValueFromCursor(context, NewsItemResolver.TITLE, cursor));
         newsItem.setLink(CursorUtil.getStringValueFromCursor(context, NewsItemResolver.LINK, cursor));
-        newsItem.setGuid(CursorUtil.getStringValueFromCursor(context, NewsItemResolver.GUID, cursor));
-        newsItem.setCategory(CursorUtil.getStringValueFromCursor(context, NewsItemResolver.CATEGORY, cursor));
-        Long publishDateMilliseconds = CursorUtil.getLongValueFromCursor(context, NewsItemResolver.PUBLISH_DATE, cursor);
-        newsItem.setPublishDate(publishDateMilliseconds != null ? new Date(publishDateMilliseconds) : null);
-        newsItem.setDescription(CursorUtil.getStringValueFromCursor(context, NewsItemResolver.DESCRIPTION, cursor));
+        newsItem.setAuthor(CursorUtil.getStringValueFromCursor(context, NewsItemResolver.AUTHOR, cursor));
+        Long publishedDateMilliseconds = CursorUtil.getLongValueFromCursor(context, NewsItemResolver.PUBLISHED_DATE, cursor);
+        newsItem.setPublishedDate(publishedDateMilliseconds != null ? new Date(publishedDateMilliseconds) : null);
+        newsItem.setContentSnippet(CursorUtil.getStringValueFromCursor(context, NewsItemResolver.CONTENT_SNIPPET, cursor));
+        newsItem.setContent(CursorUtil.getStringValueFromCursor(context, NewsItemResolver.CONTENT, cursor));
+        String categories = CursorUtil.getStringValueFromCursor(context, NewsItemResolver.CATEGORIES, cursor);
+        newsItem.setCategories(Arrays.asList(categories.split(",")));
 
         return newsItem;
     }

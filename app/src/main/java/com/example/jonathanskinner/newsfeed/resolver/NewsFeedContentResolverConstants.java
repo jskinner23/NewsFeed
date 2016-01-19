@@ -23,10 +23,11 @@ public class NewsFeedContentResolverConstants {
 
         public static final String TITLE = "title";
         public static final String LINK = "link";
-        public static final String GUID = "guid";
-        public static final String CATEGORY = "category";
-        public static final String PUBLISH_DATE = "publishDate";
-        public static final String DESCRIPTION = "description";
+        public static final String AUTHOR = "author";
+        public static final String PUBLISHED_DATE = "publishedDate";
+        public static final String CONTENT_SNIPPET = "contentSnippet";
+        public static final String CONTENT = "content";
+        public static final String CATEGORIES = "categories";
 
         public static Uri getCONTENT_URI(String authority) {
             return buildUri(authority, PATH);

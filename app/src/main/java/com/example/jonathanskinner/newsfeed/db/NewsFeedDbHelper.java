@@ -23,10 +23,11 @@ public final class NewsFeedDbHelper extends SQLiteOpenHelper {
             " ("+NewsItemResolver._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
             NewsItemResolver.TITLE + " TEXT, " +
             NewsItemResolver.LINK + " TEXT, " +
-            NewsItemResolver.GUID + " TEXT, " +
-            NewsItemResolver.CATEGORY + " TEXT, " +
-            NewsItemResolver.PUBLISH_DATE + " INTEGER, " +
-            NewsItemResolver.DESCRIPTION + " TEXT)";
+            NewsItemResolver.AUTHOR + " TEXT, " +
+            NewsItemResolver.PUBLISHED_DATE + " INTEGER, " +
+            NewsItemResolver.CONTENT_SNIPPET + " TEXT, " +
+            NewsItemResolver.CONTENT + " TEXT, " +
+            NewsItemResolver.CATEGORIES + " TEXT)";
 
     public NewsFeedDbHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
